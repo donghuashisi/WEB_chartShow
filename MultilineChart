@@ -1,0 +1,97 @@
+#  this code is used to show a mutiple line chart
+## links ################
+# for chart 
+<!-- Resources -->
+<script src="https://www.amcharts.com/lib/3/amcharts.js"></script>
+<script src="https://www.amcharts.com/lib/3/serial.js"></script>
+<script src="https://www.amcharts.com/lib/3/plugins/export/export.min.js"></script>
+<link rel="stylesheet" href="https://www.amcharts.com/lib/3/plugins/export/export.css" type="text/css" media="all" />
+<script src="https://www.amcharts.com/lib/3/themes/none.js"></script>
+
+#of  course Jquery is necessary#######
+<script type="text/javascript" src="/static/jquery-1.11.0.min.js"></script>
+
+
+<script>
+
+#demo test data to use
+    var testData=[
+           {'time':'tm1','proto':{'UDP':120,'TCP':13,'XXX':10}},
+           {'time':'tm2','proto':{'UDP':120,'TCP':13,'XXX':10}}
+        ];
+## we just want to show some line in the chart instead of all lines 
+    var showlist=['UDP'];
+## get the the useful and right format data to show  in the chart
+    function ParseDatatoShow(Data,showList) {
+            var ParesData=[];
+            for(var i=0;i<Data.length;i++){
+                var time={};
+                time.time=Data[i].time;
+                var proto={};
+                for (var j=0;j<showList.length;j++){
+                    proto[showList[j]]=Data[i].proto[showList[j]];
+                }
+                ParesData.push($.extend({}, time,proto));
+            }
+            return ParesData;
+        }
+## draw function ,give the chart name,to show data and which value is used to act as aixal X
+    function drawLineChart(chartName,Data,xName) {
+            var xValue=xName;
+
+            //create graphList
+            var graphList=[];
+            var tmp="<span style='font-size:14px; color:#000000;'><b>[[value]]</b></span>";
+            for (var key in Data[0]) {
+                   if(key!=xValue){
+                       var elem={"balloonText":tmp, "fillAlphas":0.6, "hidden":false, "lineAlpha":0.4, "title":key, "valueField":key};
+                        graphList.push(elem);
+                   }
+            }
+
+            var chart = AmCharts.makeChart(chartName, {
+                "type": "serial",
+                "theme": "none",
+                "marginRight":30,
+                "legend": {
+                    "equalWidths": false,
+                    "periodValueText": "[[value.sum]]",
+                    "position": "top",
+                    "valueAlign": "left",
+                    "valueWidth": 100
+                },
+                "dataProvider":Data ,
+                "valueAxes": [{
+                    "stackType": "regular",
+                    "gridAlpha": 0.07,
+                    "position": "left",
+                    "title": "Flow Anayse"
+                }],
+                "graphs":graphList ,
+                "plotAreaBorderAlpha": 0,
+                "marginTop": 10,
+                "marginLeft": 0,
+                "marginBottom": 0,
+                "chartScrollbar": {},
+                "chartCursor": {
+                    "cursorAlpha": 0
+                },
+                "categoryField": xValue,
+                "categoryAxis": {
+                    "startOnAxis": true,
+                    "axisColor": "#DADADA",
+                    "gridAlpha": 0.07,
+                    "title": xValue,
+                    "guides": []
+                },
+                "export": {
+                    "enabled": false
+                 }
+            });
+            return chart;
+        }
+        
+        ## draw the line with the test data and choice
+        var lineChart=drawLineChart("chartdiv",ParseDatatoShow(testData,showlist),"time");
+
+</script>
